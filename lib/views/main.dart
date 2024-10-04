@@ -1,5 +1,6 @@
 import 'package:attendanceapp/base/apps.dart';
 import 'package:attendanceapp/base/const.dart';
+import 'package:attendanceapp/helper/ext_widget.dart';
 import 'package:attendanceapp/other/notif.dart';
 import 'package:attendanceapp/state/main/main_bloc.dart';
 import 'package:attendanceapp/views/subs/map.dart';
@@ -75,9 +76,7 @@ class _MainPageState extends State<MainPage> {
     return Column(
       children: [
         MainTop(bloc: bloc, state: state),
-        Expanded(
-          child: MainMap(bloc: bloc, state: state),
-        ),
+        MainMap(bloc: bloc, state: state).expanded(),
       ],
     );
   }

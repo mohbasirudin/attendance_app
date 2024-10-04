@@ -1,3 +1,4 @@
+import 'package:attendanceapp/base/colors.dart';
 import 'package:flutter/material.dart';
 
 void snackbar(
@@ -9,7 +10,7 @@ void snackbar(
     SnackBar(
       content: Text(message ?? "failed"),
       duration: const Duration(seconds: 1),
-      backgroundColor: isSuccess ? Colors.green : Colors.red,
+      backgroundColor: isSuccess ? BaseColors.success : BaseColors.error,
     ),
   );
 }
