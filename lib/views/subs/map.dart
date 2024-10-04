@@ -1,0 +1,81 @@
+import 'package:attendanceapp/base/const.dart';
+import 'package:attendanceapp/other/notif.dart';
+import 'package:attendanceapp/state/main/main_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
+class MainMap extends StatefulWidget {
+  final MainBloc bloc;
+  final MainLoaded state;
+  const MainMap({
+    super.key,
+    required this.bloc,
+    required this.state,
+  });
+
+  @override
+  State<MainMap> createState() => _MainMapState();
+}
+
+class _MainMapState extends State<MainMap> {
+  @override
+  Widget build(BuildContext context) {
+    final bloc = widget.bloc;
+    final state = widget.state;
+
+    return _body(bloc, state);
+  }
+
+  Widget _body(MainBloc bloc, MainLoaded state) {
+    var cLocation = state.copyWith().masterLatLng ?? const LatLng(0, 0);
+    final userLocation = state.copyWith().userLatLng;
+
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: cLocation,
+        initialZoom: 15,
+        onTap: (pos, latlang) {
+          bloc.add(OnMainAddAttendanceManual(
+            latLng: latlang,
+            onCallback: (value) {
+              snackbar(
+                context,
+                isSuccess: value,
+                message:
+                    "${Const.attendance}: ${value ? Const.success : Const.failed}",
+              );
+            },
+          ));
+        },
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'id.basirudin.attendanceapp',
+        ),
+        MarkerLayer(
+          markers: [
+            if (userLocation != null)
+              Marker(
+                point: userLocation,
+                child: const Icon(
+                  Icons.person_pin_circle,
+                  color: Colors.red,
+                  size: 24,
+                ),
+              ),
+            Marker(
+              point: cLocation,
+              child: const Icon(
+                Icons.place_rounded,
+                color: Colors.blue,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
