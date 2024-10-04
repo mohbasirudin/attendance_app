@@ -42,4 +42,6 @@ final class OnMainOpenHistory extends MainEvent {
   const OnMainOpenHistory({required this.onCallback});
 }
 
+final class OnMainToMasterLocation extends MainEvent {}
+
 final class OnMainToCurrentLocation extends MainEvent {}

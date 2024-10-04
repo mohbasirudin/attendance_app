@@ -161,12 +161,32 @@ class _MainPageState extends State<MainPage> {
         ),
         GestureDetector(
           onTap: () {
+            bloc.add(OnMainToMasterLocation());
+          },
+          child: Container(
+            width: Const.buttonHeight,
+            height: Const.buttonHeight,
+            margin: const EdgeInsets.only(left: Const.padding / 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Const.radius),
+              color: Colors.blue,
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.place_rounded,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ).show(isShowMap),
+        GestureDetector(
+          onTap: () {
             bloc.add(OnMainToCurrentLocation());
           },
           child: Container(
             width: Const.buttonHeight,
             height: Const.buttonHeight,
-            margin: const EdgeInsets.only(left: Const.padding),
+            margin: const EdgeInsets.only(left: Const.padding / 2),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Const.radius),
               color: Colors.blueGrey,
@@ -178,7 +198,7 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
           ),
-        ),
+        ).show(isShowMap),
       ],
     );
   }

@@ -20,6 +20,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<OnMainResetAttendance>(_onMainResetAttendance);
     on<OnMainChangeMaster>(_onMainChangeMaster);
     on<OnMainOpenHistory>(_onMainOpenHistory);
+    on<OnMainToMasterLocation>(_onMainToMasterLocation);
     on<OnMainToCurrentLocation>(_onMainToCurrentLocation);
   }
 
@@ -259,6 +260,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         indexMaster: state.copyWith().indexMaster,
         mapController: state.copyWith().mapController,
         masterLatLngs: state.copyWith().masterLatLngs,
+        cLatLng: state.copyWith().cLatLng,
         attendance: null,
       ));
     }
@@ -282,6 +284,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (state is MainLoaded) {
       var data = await LocalStorage().all();
       event.onCallback(data);
+    }
+  }
+
+  void _onMainToMasterLocation(var event, var emit) async {
+    final state = this.state;
+    if (state is MainLoaded) {
+      final mapController = state.copyWith().mapController;
+      final latLng = state.masterLatLng;
+      if (latLng != null) {
+        mapController.move(latLng, 18);
+      }
     }
   }
 
