@@ -137,20 +137,49 @@ class _MainPageState extends State<MainPage> {
 
   Widget _fab(MainLoaded state) {
     var isShowMap = state.copyWith().isShowMap;
-    return ElevatedButton(
-      onPressed: () {
-        bloc.add(OnMainToggleMap());
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isShowMap ? BaseColors.error : BaseColors.success,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Const.radius),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: Const.buttonHeight,
+          child: ElevatedButton(
+            onPressed: () {
+              bloc.add(OnMainToggleMap());
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  isShowMap ? BaseColors.error : BaseColors.success,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Const.radius),
+              ),
+            ),
+            child: Text(
+              isShowMap ? Const.hideMap : Const.showMap,
+            ),
+          ),
         ),
-      ),
-      child: Text(
-        isShowMap ? Const.hideMap : Const.showMap,
-      ),
+        GestureDetector(
+          onTap: () {
+            bloc.add(OnMainToCurrentLocation());
+          },
+          child: Container(
+            width: Const.buttonHeight,
+            height: Const.buttonHeight,
+            margin: const EdgeInsets.only(left: Const.padding),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Const.radius),
+              color: Colors.blueGrey,
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.my_location,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -20,16 +20,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<OnMainResetAttendance>(_onMainResetAttendance);
     on<OnMainChangeMaster>(_onMainChangeMaster);
     on<OnMainOpenHistory>(_onMainOpenHistory);
+    on<OnMainToCurrentLocation>(_onMainToCurrentLocation);
   }
 
   void _onInit(var event, var emit) async {
     emit(MainLoading());
     try {
-      var id = await Pref().get(PrefKey.id);
-      if (id == -1) {
-        await Pref().set(PrefKey.id, 0);
-      }
-
       var indexMaster = 0;
       final masterData = [
         Master(
@@ -50,13 +46,51 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ),
       ];
 
+      var id = await Pref().get(PrefKey.id);
+      if (id == -1) {
+        await Pref().set(PrefKey.id, 0);
+      }
+      var cAttendance = await LocalStorage().get(id - 1);
+      String? inTime;
+      String? outTime;
+      if (cAttendance != null) {
+        inTime = cAttendance.inTime;
+        outTime = cAttendance.outTime;
+        print("dataLocal: $inTime $outTime");
+        if (outTime.isNotEmpty) {
+          inTime = null;
+          outTime = null;
+          cAttendance = null;
+        } else {
+          outTime = null;
+
+          var name = cAttendance.name;
+          for (var item in masterData) {
+            if (item.name == name) {
+              indexMaster = masterData.indexOf(item);
+              break;
+            }
+          }
+        }
+      }
+      print("dataLocal: $inTime $outTime");
+
       final mapController = MapController();
+      var cLocation = await Func.getCurrentLocation();
+      LatLng? cLatLng;
+      if (cLocation != null) {
+        cLatLng = LatLng(cLocation.latitude, cLocation.longitude);
+      }
 
       emit(MainLoaded(
         indexMaster: indexMaster,
         masterLatLng: masterData[indexMaster].latLng,
         masterLatLngs: masterData,
         mapController: mapController,
+        cLatLng: cLatLng,
+        inTime: inTime,
+        outTime: outTime,
+        attendance: cAttendance,
       ));
     } catch (e) {
       emit(MainError(message: e.toString()));
@@ -248,6 +282,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (state is MainLoaded) {
       var data = await LocalStorage().all();
       event.onCallback(data);
+    }
+  }
+
+  void _onMainToCurrentLocation(var event, var emit) async {
+    final state = this.state;
+    if (state is MainLoaded) {
+      var cLocation = await Func.getCurrentLocation();
+      if (cLocation != null) {
+        final mapController = state.copyWith().mapController;
+        mapController.move(LatLng(cLocation.latitude, cLocation.longitude), 18);
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 class Const {
   // string
+  static const myLocation = "My Location";
+  static const history = "History";
   static const success = "Success";
   static const failed = "Failed";
   static const attendance = "Attendance";
@@ -11,6 +13,8 @@ class Const {
   static const newAttendance = "New Attendance";
   static const map = "Map";
   static const empty = "Empty";
+  static const done = "Done";
+  static const progress = "Progress";
   static const showMap = "Show $map";
   static const hideMap = "Hide $map";
   static const messageOutOfRange = "Out of Range";

@@ -31,6 +31,7 @@ class _MainMapState extends State<MainMap> {
   Widget _body(MainBloc bloc, MainLoaded state) {
     var cLocation = state.copyWith().masterLatLng ?? const LatLng(0, 0);
     final userLocation = state.copyWith().userLatLng;
+    final cLatLng = state.copyWith().cLatLng;
 
     return FlutterMap(
       mapController: state.mapController,
@@ -68,6 +69,38 @@ class _MainMapState extends State<MainMap> {
                   size: 24,
                 ),
               ),
+            if (cLatLng != null)
+              Marker(
+                point: cLatLng,
+                width: 100,
+                height: 50,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(Const.radius * 0.5),
+                        color: BaseColors.reset,
+                      ),
+                      child: const Text(
+                        Const.myLocation,
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.place_rounded,
+                      color: BaseColors.reset,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
             Marker(
               point: cLocation,
               width: 100,
@@ -75,7 +108,22 @@ class _MainMapState extends State<MainMap> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(state.masterLatLngs[state.copyWith().indexMaster].name),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Const.radius * 0.5),
+                      color: Colors.blue,
+                    ),
+                    child: Text(
+                      state.masterLatLngs[state.copyWith().indexMaster].name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                   const Icon(
                     Icons.place_rounded,
                     color: Colors.blue,
@@ -96,6 +144,15 @@ class _MainMapState extends State<MainMap> {
               borderColor: BaseColors.success.withOpacity(0.7),
               borderStrokeWidth: 1,
             ),
+            if (cLatLng != null)
+              CircleMarker(
+                point: cLatLng,
+                radius: 50,
+                useRadiusInMeter: true,
+                color: BaseColors.reset.withOpacity(0.2),
+                borderColor: BaseColors.reset.withOpacity(0.7),
+                borderStrokeWidth: 1,
+              ),
           ],
         ),
       ],

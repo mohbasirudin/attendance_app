@@ -21,6 +21,7 @@ final class MainLoaded extends MainState {
   final int indexMaster;
   final MapController mapController;
   final Attendance? attendance;
+  final LatLng? cLatLng;
 
   const MainLoaded({
     this.masterLatLng,
@@ -32,6 +33,7 @@ final class MainLoaded extends MainState {
     this.indexMaster = 0,
     required this.mapController,
     this.attendance,
+    this.cLatLng,
   });
 
   MainLoaded copyWith({
@@ -44,6 +46,7 @@ final class MainLoaded extends MainState {
     int? indexMaster,
     MapController? mapController,
     Attendance? attendance,
+    LatLng? cLatLng,
   }) {
     return MainLoaded(
       masterLatLng: masterLatLng ?? this.masterLatLng,
@@ -55,6 +58,7 @@ final class MainLoaded extends MainState {
       indexMaster: indexMaster ?? this.indexMaster,
       mapController: mapController ?? this.mapController,
       attendance: attendance ?? this.attendance,
+      cLatLng: cLatLng ?? this.cLatLng,
     );
   }
 
@@ -69,6 +73,7 @@ final class MainLoaded extends MainState {
         indexMaster,
         mapController,
         attendance,
+        cLatLng,
       ];
 }
 

@@ -5,6 +5,7 @@ import 'package:attendanceapp/other/notif.dart';
 import 'package:attendanceapp/state/main/main_bloc.dart';
 import 'package:attendanceapp/storage/init.dart';
 import 'package:attendanceapp/storage/models/attendance.dart';
+import 'package:attendanceapp/widgets/text/title.dart';
 import 'package:flutter/material.dart';
 
 class MainTop extends StatefulWidget {
@@ -160,24 +161,117 @@ class _History extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("data: ${data.length}");
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(
+        top: Radius.circular(Const.radius),
+      ),
+      child: Column(
+        children: [
+          AppBar(
+            automaticallyImplyLeading: false,
+            title: const CTitle(Const.history),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          _body().expanded(),
+        ],
+      ),
+    );
+  }
+
+  Widget _body() {
     if (data.isEmpty) {
       return const Center(
         child: Text(Const.empty),
       );
     }
-    return ListView.builder(
+    return ListView.separated(
       itemCount: data.length,
+      padding: const EdgeInsets.all(Const.padding),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: Const.padding),
       itemBuilder: (context, index) {
         var item = data[index];
+        var inTime = item.inTime;
+        var outTime = item.outTime;
+        var isDone = outTime.isNotEmpty;
         return Column(
           children: [
-            Text(item.name),
-            Text(item.inTime),
-            Text(item.outTime),
+            Row(
+              children: [
+                Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ).expanded(),
+                Text(
+                  isDone ? Const.done : Const.progress,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDone ? BaseColors.success : BaseColors.reset,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Const.padding),
+            Row(
+              children: [
+                _child(
+                  Const.inTime,
+                  value: inTime,
+                  color: BaseColors.success,
+                ),
+                const SizedBox(width: Const.padding),
+                _child(
+                  Const.outTime,
+                  value: outTime.isEmpty ? "--::--" : outTime,
+                  color: BaseColors.error,
+                ),
+              ],
+            ),
           ],
         );
       },
     );
+  }
+
+  Widget _child(
+    String name, {
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(Const.padding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Const.radius),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(name),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ).expanded();
   }
 }
