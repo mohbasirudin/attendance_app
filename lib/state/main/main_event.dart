@@ -11,7 +11,7 @@ final class OnMainInit extends MainEvent {}
 
 final class OnMainAddAttendanceManual extends MainEvent {
   final LatLng latLng;
-  final Function(bool value) onCallback;
+  final Function(bool value, num meter) onCallback;
 
   const OnMainAddAttendanceManual({
     required this.latLng,
@@ -20,7 +20,18 @@ final class OnMainAddAttendanceManual extends MainEvent {
 }
 
 final class OnMainAddAttendanceAuto extends MainEvent {
-  final Function(bool value) onCallback;
+  final Function(bool value, num meter) onCallback;
 
   const OnMainAddAttendanceAuto({required this.onCallback});
+}
+
+final class OnMainToggleMap extends MainEvent {}
+
+final class OnMainResetAttendance extends MainEvent {}
+
+final class OnMainChangeMaster extends MainEvent {
+  final int index;
+  final LatLng latLng;
+
+  const OnMainChangeMaster({required this.index, required this.latLng});
 }

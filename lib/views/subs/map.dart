@@ -1,3 +1,4 @@
+import 'package:attendanceapp/base/colors.dart';
 import 'package:attendanceapp/base/const.dart';
 import 'package:attendanceapp/other/notif.dart';
 import 'package:attendanceapp/state/main/main_bloc.dart';
@@ -32,18 +33,20 @@ class _MainMapState extends State<MainMap> {
     final userLocation = state.copyWith().userLatLng;
 
     return FlutterMap(
+      mapController: state.mapController,
       options: MapOptions(
         initialCenter: cLocation,
-        initialZoom: 15,
+        initialZoom: 18,
         onTap: (pos, latlang) {
           bloc.add(OnMainAddAttendanceManual(
             latLng: latlang,
-            onCallback: (value) {
+            onCallback: (value, meter) {
               snackbar(
                 context,
                 isSuccess: value,
-                message:
-                    "${Const.attendance}: ${value ? Const.success : Const.failed}",
+                message: "${Const.attendance}: "
+                    "${value ? Const.success : Const.messageOutOfRange}"
+                    "${value ? '' : ' ($meter ${Const.meter})'}",
               );
             },
           ));
@@ -67,11 +70,31 @@ class _MainMapState extends State<MainMap> {
               ),
             Marker(
               point: cLocation,
-              child: const Icon(
-                Icons.place_rounded,
-                color: Colors.blue,
-                size: 24,
+              width: 100,
+              height: 50,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(state.masterLatLngs[state.copyWith().indexMaster].name),
+                  const Icon(
+                    Icons.place_rounded,
+                    color: Colors.blue,
+                    size: 24,
+                  ),
+                ],
               ),
+            ),
+          ],
+        ),
+        CircleLayer(
+          circles: [
+            CircleMarker(
+              point: cLocation,
+              radius: 50,
+              useRadiusInMeter: true,
+              color: BaseColors.success.withOpacity(0.2),
+              borderColor: BaseColors.success.withOpacity(0.7),
+              borderStrokeWidth: 1,
             ),
           ],
         ),
