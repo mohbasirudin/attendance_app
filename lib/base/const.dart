@@ -10,6 +10,7 @@ class Const {
   static const meter = "Meter";
   static const newAttendance = "New Attendance";
   static const map = "Map";
+  static const empty = "Empty";
   static const showMap = "Show $map";
   static const hideMap = "Hide $map";
   static const messageOutOfRange = "Out of Range";

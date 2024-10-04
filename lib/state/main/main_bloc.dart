@@ -1,5 +1,8 @@
 import 'package:attendanceapp/helper/func.dart';
 import 'package:attendanceapp/model/master.dart';
+import 'package:attendanceapp/storage/init.dart';
+import 'package:attendanceapp/storage/models/attendance.dart';
+import 'package:attendanceapp/storage/pref.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -16,11 +19,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<OnMainToggleMap>(_onMainToggleMap);
     on<OnMainResetAttendance>(_onMainResetAttendance);
     on<OnMainChangeMaster>(_onMainChangeMaster);
+    on<OnMainOpenHistory>(_onMainOpenHistory);
   }
 
   void _onInit(var event, var emit) async {
     emit(MainLoading());
     try {
+      var id = await Pref().get(PrefKey.id);
+      if (id == -1) {
+        await Pref().set(PrefKey.id, 0);
+      }
+
       var indexMaster = 0;
       final masterData = [
         Master(
@@ -70,7 +79,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       final isSuccess = Func.checkAttendance(meter);
       event.onCallback(isSuccess, meter);
       if (isSuccess) {
-        final time = Func.getTime();
+        final today = Func.today();
+        final time = Func.getTime(date: today);
         var inTime = state.copyWith().inTime;
         var outTime = state.copyWith().outTime;
         if (inTime == null) {
@@ -78,11 +88,44 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } else {
           outTime = time;
         }
+
+        final attendance = state.copyWith().attendance;
+        Attendance? cAttendance;
+        if (attendance != null) {
+          cAttendance = Attendance(
+            id: attendance.id,
+            name: attendance.name,
+            inTime: attendance.inTime,
+            outTime: outTime ?? "",
+            createdAt: attendance.createdAt,
+            updatedAt: today,
+            success: outTime != null ? 1 : 0,
+          );
+          await LocalStorage().update(
+            cAttendance,
+          );
+        } else {
+          cAttendance = Attendance(
+            id: await Pref().get(PrefKey.id),
+            name: state.masterLatLngs[state.copyWith().indexMaster].name,
+            inTime: inTime,
+            outTime: outTime ?? "",
+            createdAt: today,
+            updatedAt: today,
+            success: outTime != null ? 1 : 0,
+          );
+          final isInsert = await LocalStorage().insert(cAttendance);
+          if (isInsert) {
+            cAttendance = await LocalStorage().get(cAttendance.id);
+          }
+        }
+
         emit(
           state.copyWith(
             userLatLng: latLng,
             inTime: inTime,
             outTime: outTime,
+            attendance: cAttendance,
           ),
         );
       }
@@ -112,7 +155,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       final isSuccess = Func.checkAttendance(meter);
       event.onCallback(isSuccess, meter);
       if (isSuccess) {
-        final time = Func.getTime();
+        final today = Func.today();
+        final time = Func.getTime(date: today);
         var inTime = state.copyWith().inTime;
         var outTime = state.copyWith().outTime;
         if (inTime == null) {
@@ -120,11 +164,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } else {
           outTime = time;
         }
+
+        final attendance = state.copyWith().attendance;
+        Attendance? cAttendance;
+        if (attendance != null) {
+          cAttendance = Attendance(
+            id: attendance.id,
+            name: attendance.name,
+            inTime: attendance.inTime,
+            outTime: outTime ?? "",
+            createdAt: attendance.createdAt,
+            updatedAt: today,
+            success: outTime != null ? 1 : 0,
+          );
+          await LocalStorage().update(cAttendance);
+        } else {
+          cAttendance = Attendance(
+            id: await Pref().get(PrefKey.id),
+            name: state.masterLatLngs[state.copyWith().indexMaster].name,
+            inTime: inTime,
+            outTime: outTime ?? "",
+            createdAt: today,
+            updatedAt: today,
+            success: outTime != null ? 1 : 0,
+          );
+          final isInsert = await LocalStorage().insert(cAttendance);
+          if (isInsert) {
+            cAttendance = await LocalStorage().get(cAttendance.id);
+          }
+        }
+
         emit(
           state.copyWith(
             userLatLng: latLng,
             inTime: inTime,
             outTime: outTime,
+            attendance: cAttendance,
           ),
         );
       }
@@ -150,6 +225,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         indexMaster: state.copyWith().indexMaster,
         mapController: state.copyWith().mapController,
         masterLatLngs: state.copyWith().masterLatLngs,
+        attendance: null,
       ));
     }
   }
@@ -164,6 +240,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         masterLatLng: latLng,
         indexMaster: event.index,
       ));
+    }
+  }
+
+  void _onMainOpenHistory(OnMainOpenHistory event, var emit) async {
+    final state = this.state;
+    if (state is MainLoaded) {
+      var data = await LocalStorage().all();
+      event.onCallback(data);
     }
   }
 }

@@ -1,12 +1,18 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
 class Func {
-  static String getTime() {
+  static String today() {
     final today = DateTime.now();
-    final hour = today.hour.toString();
-    final minute = today.minute.toString();
-    return "$hour:$minute";
+    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(today);
+  }
+
+  static String getTime({String? date}) {
+    final now = date ?? today();
+    final dateNow = DateFormat("yyyy-MM-dd HH:mm:ss").parse(now);
+    return DateFormat("HH:mm").format(dateNow);
   }
 
   static Future<Position?> getCurrentLocation() async {

@@ -3,6 +3,8 @@ import 'package:attendanceapp/base/const.dart';
 import 'package:attendanceapp/helper/ext_widget.dart';
 import 'package:attendanceapp/other/notif.dart';
 import 'package:attendanceapp/state/main/main_bloc.dart';
+import 'package:attendanceapp/storage/init.dart';
+import 'package:attendanceapp/storage/models/attendance.dart';
 import 'package:flutter/material.dart';
 
 class MainTop extends StatefulWidget {
@@ -42,41 +44,79 @@ class _MainTopState extends State<MainTop> {
           ),
           const SizedBox(height: Const.padding),
           SizedBox(
-              width: double.infinity,
-              height: Const.buttonHeight,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (isCanReset) {
-                    bloc.add(OnMainResetAttendance());
-                  } else {
+            width: double.infinity,
+            child: Row(
+              children: [
+                SizedBox(
+                  height: Const.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (isCanReset) {
+                        bloc.add(OnMainResetAttendance());
+                      } else {
+                        bloc.add(
+                          OnMainAddAttendanceAuto(
+                            onCallback: (value, meter) {
+                              snackbar(
+                                context,
+                                message: "${Const.attendance}: "
+                                    "${value ? Const.success : Const.messageOutOfRange} "
+                                    "${value ? '' : ' ($meter ${Const.meter})'}",
+                                isSuccess: value,
+                              );
+                            },
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCanReset
+                          ? BaseColors.reset
+                          : (isIn ? BaseColors.success : BaseColors.error),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(Const.radius),
+                      ),
+                    ),
+                    child: Text(isCanReset
+                        ? Const.newAttendance
+                        : (isIn ? Const.checkIn : Const.checkOut)),
+                  ),
+                ).expanded(),
+                GestureDetector(
+                  onTap: () {
                     bloc.add(
-                      OnMainAddAttendanceAuto(
-                        onCallback: (value, meter) {
-                          snackbar(
-                            context,
-                            message: "${Const.attendance}: "
-                                "${value ? Const.success : Const.messageOutOfRange} "
-                                "${value ? '' : ' ($meter ${Const.meter})'}",
-                            isSuccess: value,
+                      OnMainOpenHistory(
+                        onCallback: (data) {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => _History(data: data),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Const.radius),
+                            ),
                           );
                         },
                       ),
                     );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isCanReset
-                      ? BaseColors.reset
-                      : (isIn ? BaseColors.success : BaseColors.error),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Const.radius),
+                  },
+                  child: Container(
+                    width: Const.buttonHeight,
+                    height: Const.buttonHeight,
+                    margin: const EdgeInsets.only(left: Const.padding),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Const.radius),
+                      color: BaseColors.reset,
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.history_sharp,
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(isCanReset
-                    ? Const.newAttendance
-                    : (isIn ? Const.checkIn : Const.checkOut)),
-              )),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -111,5 +151,33 @@ class _MainTopState extends State<MainTop> {
         ],
       ),
     ).expanded();
+  }
+}
+
+class _History extends StatelessWidget {
+  final List<Attendance> data;
+  const _History({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    print("data: ${data.length}");
+    if (data.isEmpty) {
+      return const Center(
+        child: Text(Const.empty),
+      );
+    }
+    return ListView.builder(
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        var item = data[index];
+        return Column(
+          children: [
+            Text(item.name),
+            Text(item.inTime),
+            Text(item.outTime),
+          ],
+        );
+      },
+    );
   }
 }

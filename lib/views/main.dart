@@ -11,8 +11,6 @@ import 'package:attendanceapp/widgets/page/loading.dart';
 import 'package:attendanceapp/widgets/text/title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -42,6 +40,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: BlocBuilder<MainBloc, MainState>(
           builder: (context, state) {
             if (state is MainLoaded) {

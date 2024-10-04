@@ -35,3 +35,9 @@ final class OnMainChangeMaster extends MainEvent {
 
   const OnMainChangeMaster({required this.index, required this.latLng});
 }
+
+final class OnMainOpenHistory extends MainEvent {
+  final Function(List<Attendance> data) onCallback;
+
+  const OnMainOpenHistory({required this.onCallback});
+}
